@@ -1,0 +1,42 @@
+<figure2>
+## Figure 2 The Risk Factors of Admission Due to Ovarian Hyperstimulation Syndrome 
+
+|                                    |                           |                           |                                     |                                     |
+| ---------------------------------- | ------------------------- | ------------------------- | ----------------------------------- | ----------------------------------- |
+| **Risk factors**                   | **Fresh Embryo Transfer** | **Fresh Embryo Transfer** | **No Embryo Transfer (Freeze-All)** | **No Embryo Transfer (Freeze-All)** |
+| unadjust or adjusted relative risk | **uRR**                   | **aRR**                   | **uRR**                             | **aRR**                             |
+| PCOS history                       | 2.52 (2.29-2.77) *        | 2.06 (1.86-2.28) *        | 5.31 (4.26-6.62) *                  | 3.05 (2.41-3.85) *                  |
+| Agonist Protocol                   | 2.01 (1.67-2.45) *        | 1.04 (0.85-1.29)          | 1.66 (1.29-2.17) *                  | 1.51 (1.15-2.01) *                  |
+| Oocytes Retrieved                  |                           |                           |                                     |                                     |
+| Less than 11                       | 0.23 (0.20-0.25) *        | 0.32 (0.29-0.37) *        | 0.20 (0.12-0.31) *                  | 0.28 (0.17-0.44) *                  |
+| 11~15                              | Reference                 | Reference                 | Reference                           | Reference                           |
+| 16~30                              | 2.09 (1.90-2.30) *        | 1.84 (1.67-2.03) *        | 2.99 (2.14-4.25) *                  | 2.39 (1.71-3.42) *                  |
+| More than 30                       | 4.00 (3.32-4.80) *        | 3.07 (2.53-3.69) *        | 9.37 (6.53-13.68) *                 | 5.98 (4.12-8.80) *                  |
+| Maternal Age                       |                           |                           |                                     |                                     |
+| Less than 30                       | 1.58 (1.43-1.75) *        | 1.24 (1.12-1.37) *        | 2.34 (1.80-3.03) *                  | 1.74 (1.33-2.28) *                  |
+| 30~34                              | Reference                 | Reference                 | Reference                           | Reference                           |
+| 35~39                              | 0.46 (0.42-0.51) *        | 0.64 (0.58-0.71) *        | 0.33 (0.25-0.44) *                  | 0.56 (0.42-0.75) *                  |
+| More than 39                       | 0.11 (0.08-0.14) *        | 0.27 (0.20-0.35) *        | 0.09 (0.05-0.15) *                  | 0.32 (0.17-0.55) *                  |
+| Cause of Infertility               |                           |                           |                                     |                                     |
+| Multiple                           | 0.73 (0.64-0.83) *        | 0.94 (0.82-1.08)          | 0.89 (0.60-1.35)                    | 1.13 (0.75-1.74)                    |
+| Other Female                       | 0.82 (0.73-0.92) *        | 0.95 (0.84-1.08)          | 1.22 (0.82-1.86)                    | 1.20 (0.80-1.85)                    |
+| Ovary                              | 0.36 (0.25-0.50) *        | 0.70 (0.48-1.01)          | 0.81 (0.51-1.30)                    | 0.91 (0.56-1.49)                    |
+| Male                               | 1.08 (0.96-1.22)          | 0.99 (0.88-1.12)          | 1.29 (0.85-2.01)                    | 1.10 (0.71-1.73)                    |
+| Tube                               | Reference                 | Reference                 | Reference                           | Reference                           |
+| Unknown                            | 1.12 (0.93-1.34)          | 1.15 (0.95-1.38)          | 1.35 (0.72-2.43)                    | 1.30 (0.69-2.38)                    |
+| Endometriosis                      | 0.19 (0.08-0.39) *        | 0.37 (0.14-0.75) *        | 0.35 (0.08-0.98)                    | 0.71 (0.17-2.05)                    |
+| Uterus                             | 0.25 (0.08-0.59) *        | 0.47 (0.15-1.13)          | 0.13 (0.01-0.59) *                  | 0.14 (0.01-0.67)                    |
+| Embryo Transfer N.                 |                           |                           |                                     |                                     |
+| SET                                | Reference                 | Reference                 | NA                                  | NA                                  |
+| DET                                | 3.24 (2.45-4.39) *        | 1.39 (1.04-1.88) *        | NA                                  | NA                                  |
+| TET                                | 4.59 (3.50-6.18) *        | 1.69 (1.28-2.29) *        | NA                                  | NA                                  |
+| QET or More                        | 6.35 (4.85-8.52) *        | 1.98 (1.50-2.68) *        | NA                                  | NA                                  |
+| Clinical Pregnancy                 | 3.04 (2.79-3.31) *        | 2.22 (2.04-2.42) *        | NA                                  | NA                                  |
+
+These risk factors in multiple variate model are all adjusted for PCOS history, Agonist Protocol, Oocytes Retrieved Number Group, Maternal Age Group, Cause of Infertility, Embryo Transfer Number, and Clinical Pregnancy.
+
+\* The _p_ values in labeled groups comparison with relative risk are less than 0.05
+
+SET, Single Embryo Transfer, DET, Double Embryo Transfer, and so on
+
+</figure2>

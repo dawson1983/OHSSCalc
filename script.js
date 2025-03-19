@@ -38,7 +38,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'oocytes': 'Oocytes Retrieved',
             'maternalAge': 'Maternal Age',
             'infertilityCause': 'Cause of Infertility',
+            'embryoNumber': 'Embryo Transfer Number',
             'risk-label': 'Risk of OHSS Admission',
+            'sharedDecision': 'Shared Decision Making',
+            'decisionExplanation': 'The following options represent key decisions to be made jointly by clinicians and patients after ovum pick-up. Consider the risk factors above when making these choices.',
             // Embryo Transfer Strategy options
             'freshEmbryo': 'Fresh Embryo Transfer',
             'noEmbryo': 'No Embryo Transfer (Freeze-All)',
@@ -90,7 +93,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'oocytes': '取出的卵子數量',
             'maternalAge': '母親年齡',
             'infertilityCause': '不孕原因',
+            'embryoNumber': '胚胎移植數量',
             'risk-label': 'OHSS 入院風險',
+            'sharedDecision': '共同決策',
+            'decisionExplanation': '以下選項代表在卵子採集後需要由臨床醫師和患者共同做出的關鍵決定。請在做出這些選擇時考慮上述風險因素。',
             // Embryo Transfer Strategy options
             'freshEmbryo': '新鮮週期植入(當周期)',
             'noEmbryo': '當周期全部冷凍不植入胚胎',
@@ -142,7 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'oocytes': 'Ovocitos Recuperados',
             'maternalAge': 'Edad Materna',
             'infertilityCause': 'Causa de Infertilidad',
+            'embryoNumber': 'Número de Transferencia de Embriones',
             'risk-label': 'Riesgo de Ingreso por OHSS',
+            'sharedDecision': 'Toma de Decisiones Compartida',
+            'decisionExplanation': 'Las siguientes opciones representan decisiones clave que deben ser tomadas conjuntamente por los médicos y los pacientes después de la recolección de óvulos. Considere los factores de riesgo anteriores al tomar estas decisiones.',
             // Embryo Transfer Strategy options
             'freshEmbryo': 'Transferencia de Embriones Frescos',
             'noEmbryo': 'Sin Transferencia de Embriones (Congelación Total)',
@@ -194,7 +203,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'oocytes': '採取された卵子',
             'maternalAge': '母体年齡',
             'infertilityCause': '不妊の原因',
+            'embryoNumber': '胚移植数',
             'risk-label': 'OHSS 入院リスク',
+            'sharedDecision': '共同意思決定',
+            'decisionExplanation': '以下のオプションは、卵子収穫後に医師と患者が共同で行う重要な意思決定を表しています。これらの選択を行う際には、上記のリスク因子を考慮してください。',
             // Embryo Transfer Strategy options
             'freshEmbryo': '新鮮胚移植',
             'noEmbryo': '胚移植なし（全凍結）',
@@ -246,7 +258,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'oocytes': 'Ovocytes Récupérés',
             'maternalAge': 'Âge Maternel',
             'infertilityCause': 'Cause d\'Infertilité',
+            'embryoNumber': 'Nombre de Transfert d\'Embryons',
             'risk-label': 'Risque d\'Admission OHSS',
+            'sharedDecision': 'Prise de Décision Partagée',
+            'decisionExplanation': 'Les options suivantes représentent des décisions clés à prendre conjointement par les cliniciens et les patients après le prélèvement ovocytaire. Considérez les facteurs de risque ci-dessus lors de ces choix.',
             // Embryo Transfer Strategy options
             'freshEmbryo': 'Transfert d\'Embryons Frais',
             'noEmbryo': 'Pas de Transfert d\'Embryons (Congélation Totale)',
@@ -584,6 +599,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.risk-category.high span:last-child').forEach(el => {
             if (trans['highRisk']) el.textContent = trans['highRisk'];
         });
+        
+        // Update shared decision making section
+        const decisionHeading = document.querySelector('.decision-heading');
+        if (decisionHeading && trans['sharedDecision']) {
+            decisionHeading.textContent = trans['sharedDecision'];
+        }
+        
+        const decisionExplanation = document.querySelector('.decision-explanation p');
+        if (decisionExplanation && trans['decisionExplanation']) {
+            decisionExplanation.textContent = trans['decisionExplanation'];
+        }
         
         // Update html lang attribute
         document.documentElement.lang = lang;

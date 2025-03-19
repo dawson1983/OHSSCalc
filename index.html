@@ -87,20 +87,23 @@
 
         <form id="riskCalculatorForm">
           <div class="form-group">
-            <label class="form-label">Embryo Transfer Strategy</label>
+            <label class="form-label">Maternal Age</label>
             <div class="radio-group">
               <label>
-                <input
-                  type="radio"
-                  name="embryoTransfer"
-                  value="fresh"
-                  checked
-                />
-                <span>Fresh Embryo Transfer</span>
+                <input type="radio" name="maternalAge" value="less30" />
+                <span>Less than 30</span>
               </label>
               <label>
-                <input type="radio" name="embryoTransfer" value="freezeAll" />
-                <span>No Embryo Transfer (Freeze-All)</span>
+                <input type="radio" name="maternalAge" value="30to34" checked />
+                <span>30-34</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="35to39" />
+                <span>35-39</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="more39" />
+                <span>More than 39</span>
               </label>
             </div>
           </div>
@@ -122,32 +125,6 @@
               <label>
                 <input type="radio" name="pcosHistory" value="no" checked />
                 <span>No</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label"
-              >Protocol
-              <span
-                class="tooltip-icon"
-                data-tooltip="Type of protocol used for ovarian stimulation"
-                >?</span
-              >
-            </label>
-            <div class="radio-group">
-              <label>
-                <input type="radio" name="protocol" value="agonist" />
-                <span>Agonist Protocol</span>
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="protocol"
-                  value="antagonist"
-                  checked
-                />
-                <span>Antagonist Protocol</span>
               </label>
             </div>
           </div>
@@ -175,23 +152,27 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Maternal Age</label>
+            <label class="form-label"
+              >Protocol
+              <span
+                class="tooltip-icon"
+                data-tooltip="Type of protocol used for ovarian stimulation"
+                >?</span
+              >
+            </label>
             <div class="radio-group">
               <label>
-                <input type="radio" name="maternalAge" value="less30" />
-                <span>Less than 30</span>
+                <input type="radio" name="protocol" value="agonist" />
+                <span>Agonist Protocol</span>
               </label>
               <label>
-                <input type="radio" name="maternalAge" value="30to34" checked />
-                <span>30-34</span>
-              </label>
-              <label>
-                <input type="radio" name="maternalAge" value="35to39" />
-                <span>35-39</span>
-              </label>
-              <label>
-                <input type="radio" name="maternalAge" value="more39" />
-                <span>More than 39</span>
+                <input
+                  type="radio"
+                  name="protocol"
+                  value="antagonist"
+                  checked
+                />
+                <span>Antagonist Protocol</span>
               </label>
             </div>
           </div>
@@ -247,6 +228,40 @@
             </div>
           </div>
 
+          <!-- Shared Decision Making Section -->
+          <div class="decision-divider">
+            <div class="divider-line"></div>
+            <h3 class="decision-heading">Shared Decision Making</h3>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="decision-explanation">
+            <p>
+              The following options represent key decisions to be made jointly
+              by clinicians and patients after ovum pick-up. Consider the risk
+              factors above when making these choices.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Embryo Transfer Strategy</label>
+            <div class="radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="embryoTransfer"
+                  value="fresh"
+                  checked
+                />
+                <span>Fresh Embryo Transfer</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoTransfer" value="freezeAll" />
+                <span>No Embryo Transfer (Freeze-All)</span>
+              </label>
+            </div>
+          </div>
+
           <div id="embryoTransferOptions" class="form-group">
             <label class="form-label">Embryo Transfer Number</label>
             <div class="radio-group">
@@ -280,17 +295,17 @@
             </label>
             <div class="radio-group">
               <label>
-                <input type="radio" name="clinicalPregnancy" value="yes" />
-                <span>Yes</span>
-              </label>
-              <label>
                 <input
                   type="radio"
                   name="clinicalPregnancy"
-                  value="no"
+                  value="yes"
                   checked
                 />
                 <span>No</span>
+              </label>
+              <label>
+                <input type="radio" name="clinicalPregnancy" value="no" />
+                <span>Yes</span>
               </label>
             </div>
           </div>
@@ -937,16 +952,40 @@
           </button>
         </div>
       </details>
-
-      <footer>
-        <p>
-          This calculator is based on research data and is for educational
-          purposes only. Always consult with your healthcare provider for
-          medical advice.
-        </p>
-        <p>
-          Default baseline incidence rates: Fresh ET: 1.94%, Freeze-All: 1.11%
-        </p>
+      <footer class="enhanced-footer">
+        <div class="footer-content">
+          <div class="disclaimer-section">
+            <p>
+              This calculator is based on research data and is for educational
+              purposes only. Always consult with your healthcare provider for
+              medical advice.
+            </p>
+            <p>
+              Default baseline incidence rates: Fresh ET: 1.94%, Freeze-All:
+              1.11%
+            </p>
+          </div>
+          <div class="credits-section">
+            <p class="credits">
+              <span class="developer"
+                >Developed by Dawson Tasheng Chen, M.D.</span
+              >
+              <span class="data-source">
+                Data analysis based on the Taiwan Assisted Reproductive
+                Technology (ART) Registry and National Health Insurance Research
+                Database(2000-2016).
+              </span>
+              <span class="source-code">
+                <a
+                  href="https://github.com/dawson1983/OHSSCalc"
+                  target="_blank"
+                >
+                  Source code: github.com/dawson1983/OHSSCalc
+                </a>
+              </span>
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
 

@@ -2,6 +2,8 @@
 
 This is a calculator for estimating the risk of hospital admission due to Ovarian Hyperstimulation Syndrome (OHSS) based on various clinical factors.
 
+The `single_page_version.html` is the combined file including all necessary css, javascript, html files, which is convenient for copy onto USB.
+
 ## Overview
 
 The OHSS Admission Risk Calculator is a web-based tool that helps estimate the risk of hospital admission due to OHSS based on multiple clinical factors, including:
@@ -58,3 +60,30 @@ This calculator is for educational purposes only and should not be used as a sub
 ---
 
 Developed based on research data on Ovarian Hyperstimulation Syndrome (OHSS) risk factors.
+
+<footer class="enhanced-footer">
+  <div class="footer-content">
+    <div class="disclaimer-section">
+      <p>
+        This calculator is based on research data and is for educational
+        purposes only. Always consult with your healthcare provider for
+        medical advice.
+      </p>
+      <p>
+        Default baseline incidence rates: Fresh ET: 1.94%, Freeze-All: 1.11%
+      </p>
+    </div>
+    <div class="credits-section">
+      <p class="credits">
+        <span class="developer"
+          >Developed by Dawson Tasheng Chen, M.D.</span
+        >
+        <span class="data-source"
+          >Data analysis based on the Taiwan Assisted Reproductive
+          Technology (ART) Registry and National Health Insurance Research
+          Database.</span
+        >
+      </p>
+    </div>
+  </div>
+</footer>

@@ -1,8 +1,8 @@
 # OHSS Admission Risk Calculator
 
-This is a calculator for estimating the risk of hospital admission due to Ovarian Hyperstimulation Syndrome (OHSS) based on various clinical factors.
+A comprehensive tool for estimating the risk of hospital admission due to Ovarian Hyperstimulation Syndrome (OHSS) based on various clinical factors.
 
-The `single_page_version.html` is the combined file including all necessary css, javascript, html files, which is convenient for copy onto USB.
+The `single_page_version.html` contains all necessary HTML, CSS, and JavaScript in a single file for convenient portable use (e.g., via USB drive).
 
 ## Overview
 

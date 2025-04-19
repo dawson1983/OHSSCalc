@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OHSS Admission Risk Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>OHSS Admission Risk Calculator</h1>
+        <p class="description">
+          This calculator estimates the risk of hospital admission due to
+          Ovarian Hyperstimulation Syndrome (OHSS) based on various clinical
+          factors.
+        </p>
+        <div class="language-selector">
+          <label for="language-select">Language:</label>
+          <select id="language-select">
+            <option value="en" selected>English</option>
+            <option value="zh-TW">Traditional Chinese (Taiwan)</option>
+            <option value="es">Spanish</option>
+            <option value="ja">Japanese</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+          </select>
+        </div>
+      </header>
+      <!-- Fixed risk display that becomes visible when scrolling -->
+      <div id="fixedRiskDisplay" class="fixed-risk-display">
+        <div class="risk-meter">
+          <div class="risk-indicator" id="fixedRiskIndicator">
+            <div class="indicator-pointer"></div>
+          </div>
+          <div class="risk-ticks">
+            <div class="tick">0%</div>
+            <div class="tick">2%</div>
+            <div class="tick">4%</div>
+            <div class="tick">6%</div>
+            <div class="tick">8%</div>
+            <div class="tick">10%</div>
+          </div>
+        </div>
+        <div class="risk-percentage">
+          <span id="fixedRiskPercentage">1.94%</span>
+          <span class="risk-label">Risk of OHSS Admission</span>
+          <div class="risk-level" id="fixedRiskLevel">Low Risk</div>
+        </div>
+        <p class="fixed-risk-disclaimer">
+          <span class="disclaimer-icon">ⓘ</span> <strong>Note:</strong> Rates
+          vary by country
+        </p>
+      </div>
+
+      <div class="calculator-container">
+        <div class="risk-display">
+          <div class="risk-meter">
+            <div class="risk-indicator" id="riskIndicator">
+              <div class="indicator-pointer"></div>
+            </div>
+            <div class="risk-ticks">
+              <div class="tick">0%</div>
+              <div class="tick">2%</div>
+              <div class="tick">4%</div>
+              <div class="tick">6%</div>
+              <div class="tick">8%</div>
+              <div class="tick">10%</div>
+            </div>
+          </div>
+          <div class="risk-percentage">
+            <span id="riskPercentage">1.94%</span>
+            <span class="risk-label">Risk of OHSS Admission</span>
+            <div class="risk-level" id="riskLevel">Low Risk</div>
+          </div>
+
+          <p class="risk-disclaimer">
+            <span class="disclaimer-icon">ⓘ</span> <strong>Note:</strong> The
+            actual hospital admission rate for OHSS may vary in different
+            countries due to variations in healthcare systems, insurance
+            coverage, and available resources. You can customize the baseline
+            risk in Advanced Settings to better reflect local data.
+          </p>
+
+          <div class="risk-explanation">
+            <div class="risk-category low">
+              <span class="color-indicator"></span>
+              <span>Low Risk: &lt;2%</span>
+            </div>
+            <div class="risk-category medium">
+              <span class="color-indicator"></span>
+              <span>Medium Risk: 2-5%</span>
+            </div>
+            <div class="risk-category high">
+              <span class="color-indicator"></span>
+              <span>High Risk: &gt;5%</span>
+            </div>
+          </div>
+        </div>
+
+        <form id="riskCalculatorForm">
+          <div class="form-group">
+            <label class="form-label">Maternal Age</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="maternalAge" value="less30" />
+                <span>Less than 30</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="30to34" checked />
+                <span>30-34</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="35to39" />
+                <span>35-39</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="more39" />
+                <span>More than 39</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"
+              >PCOS History
+              <span
+                class="tooltip-icon"
+                data-tooltip="Polycystic Ovary Syndrome (PCOS) history"
+                >?</span
+              >
+            </label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="pcosHistory" value="yes" />
+                <span>Yes</span>
+              </label>
+              <label>
+                <input type="radio" name="pcosHistory" value="no" checked />
+                <span>No</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Oocytes Retrieved</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="oocytes" value="less11" />
+                <span>Less than 11</span>
+              </label>
+              <label>
+                <input type="radio" name="oocytes" value="11to15" checked />
+                <span>11-15</span>
+              </label>
+              <label>
+                <input type="radio" name="oocytes" value="16to30" />
+                <span>16-30</span>
+              </label>
+              <label>
+                <input type="radio" name="oocytes" value="more30" />
+                <span>More than 30</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"
+              >Protocol
+              <span
+                class="tooltip-icon"
+                data-tooltip="Type of protocol used for ovarian stimulation"
+                >?</span
+              >
+            </label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="protocol" value="agonist" />
+                <span>Agonist Protocol</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="protocol"
+                  value="antagonist"
+                  checked
+                />
+                <span>Antagonist Protocol</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Cause of Infertility</label>
+            <div class="radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="infertilityCause"
+                  value="tube"
+                  checked
+                />
+                <span>Tube</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="multiple" />
+                <span>Multiple</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="infertilityCause"
+                  value="otherFemale"
+                />
+                <span>Other Female</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="ovary" />
+                <span>Ovary</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="male" />
+                <span>Male</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="unknown" />
+                <span>Unknown</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="infertilityCause"
+                  value="endometriosis"
+                />
+                <span>Endometriosis</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="uterus" />
+                <span>Uterus</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Shared Decision Making Section -->
+          <div class="decision-divider">
+            <div class="divider-line"></div>
+            <h3 class="decision-heading">Shared Decision Making</h3>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="decision-explanation">
+            <p>
+              The following options represent key decisions to be made jointly
+              by clinicians and patients after ovum pick-up. Consider the risk
+              factors above when making these choices.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Embryo Transfer Strategy</label>
+            <div class="radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="embryoTransfer"
+                  value="fresh"
+                  checked
+                />
+                <span>Fresh Embryo Transfer</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoTransfer" value="freezeAll" />
+                <span>No Embryo Transfer (Freeze-All)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="embryoTransferOptions" class="form-group">
+            <label class="form-label">Embryo Transfer Number</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="embryoNumber" value="SET" checked />
+                <span>Single (SET)</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoNumber" value="DET" />
+                <span>Double (DET)</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoNumber" value="TET" />
+                <span>Triple (TET)</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoNumber" value="QETorMore" />
+                <span>Quadruple or More (QET+)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="clinicalPregnancyOptions" class="form-group">
+            <label class="form-label"
+              >Clinical Pregnancy
+              <span
+                class="tooltip-icon"
+                data-tooltip="Confirmation of pregnancy after embryo transfer"
+                >?</span
+              >
+            </label>
+            <div class="radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="clinicalPregnancy"
+                  value="yes"
+                  checked
+                />
+                <span>No</span>
+              </label>
+              <label>
+                <input type="radio" name="clinicalPregnancy" value="no" />
+                <span>Yes</span>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <details class="advanced-settings">
+        <summary>Advanced Settings</summary>
+        <div class="settings-container">
+          <div class="transfer-settings">
+            <div class="transfer-section">
+              <h3>
+                Fresh Embryo Transfer
+                <button id="resetFreshBtn" class="btn-reset">Reset</button>
+              </h3>
+              <div class="form-group">
+                <label for="baselineIncidenceFresh"
+                  >Baseline Incidence Rate:</label
+                >
+                <input
+                  type="number"
+                  id="baselineIncidenceFresh"
+                  value="0.01940"
+                  step="0.00001"
+                  min="0"
+                  max="1"
+                />
+              </div>
+
+              <div class="risk-factors">
+                <table class="risk-table">
+                  <thead>
+                    <tr>
+                      <th>Risk Factor</th>
+                      <th>Odds Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>PCOS History (No)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryNoFresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>PCOS History (Yes)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryFresh"
+                          value="2.06"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Antagonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="antagonistProtocolFresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Agonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="agonistProtocolFresh"
+                          value="1.04"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (Less than 11)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesLess11Fresh"
+                          value="0.32"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (11-15)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes11to15Fresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (16-30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes16to30Fresh"
+                          value="1.84"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (More than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesMore30Fresh"
+                          value="3.07"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (Less than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageLess30Fresh"
+                          value="1.24"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (30-34)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age30to34Fresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (35-39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age35to39Fresh"
+                          value="0.64"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (More than 39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageMore39Fresh"
+                          value="0.27"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Tube)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="tubeFresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Multiple)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="multipleFresh"
+                          value="0.94"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Other Female)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="otherFemaleFresh"
+                          value="0.95"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Ovary)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ovaryFresh"
+                          value="0.70"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Male)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="maleFresh"
+                          value="0.99"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Unknown)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="unknownFresh"
+                          value="1.15"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Endometriosis)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="endometriosisFresh"
+                          value="0.37"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Uterus)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="uterusFresh"
+                          value="0.47"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (SET)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferSET"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (DET)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferDET"
+                          value="1.39"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (TET)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferTET"
+                          value="1.69"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (QET+)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferQETorMore"
+                          value="1.98"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Clinical Pregnancy (No)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="clinicalPregnancyNo"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Clinical Pregnancy (Yes)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="clinicalPregnancyYes"
+                          value="2.22"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="transfer-section">
+              <h3>
+                Freeze-All Strategy
+                <button id="resetFreezeAllBtn" class="btn-reset">Reset</button>
+              </h3>
+              <div class="form-group">
+                <label for="baselineIncidenceFreezeAll"
+                  >Baseline Incidence Rate:</label
+                >
+                <input
+                  type="number"
+                  id="baselineIncidenceFreezeAll"
+                  value="0.01114"
+                  step="0.00001"
+                  min="0"
+                  max="1"
+                />
+              </div>
+
+              <div class="risk-factors">
+                <table class="risk-table">
+                  <thead>
+                    <tr>
+                      <th>Risk Factor</th>
+                      <th>Odds Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>PCOS History (No)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryNoFreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>PCOS History (Yes)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryFreezeAll"
+                          value="1.85"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Antagonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="antagonistProtocolFreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Agonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="agonistProtocolFreezeAll"
+                          value="0.97"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (Less than 11)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesLess11FreezeAll"
+                          value="0.23"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (11-15)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes11to15FreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (16-30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes16to30FreezeAll"
+                          value="1.89"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (More than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesMore30FreezeAll"
+                          value="3.13"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (Less than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageLess30FreezeAll"
+                          value="1.06"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (30-34)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age30to34FreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (35-39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age35to39FreezeAll"
+                          value="0.71"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (More than 39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageMore39FreezeAll"
+                          value="0.42"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Tube)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="tubeFreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Multiple)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="multipleFreezeAll"
+                          value="0.85"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Other Female)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="otherFemaleFreezeAll"
+                          value="0.63"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Ovary)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ovaryFreezeAll"
+                          value="0.69"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Male)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="maleFreezeAll"
+                          value="0.85"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Unknown)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="unknownFreezeAll"
+                          value="1.30"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Endometriosis)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="endometriosisFreezeAll"
+                          value="0.57"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Uterus)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="uterusFreezeAll"
+                          value="0.38"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <button id="resetAllFactorsBtn" class="btn-reset-all">
+            Reset All Risk Factors
+          </button>
+        </div>
+      </details>
+      <footer class="enhanced-footer">
+        <div class="footer-content">
+          <div class="disclaimer-section">
+            <p>
+              This calculator is based on research data and is for educational
+              purposes only. Always consult with your healthcare provider for
+              medical advice.
+            </p>
+            <p>
+              Default baseline incidence rates: Fresh ET: 1.94%, Freeze-All:
+              1.11%
+            </p>
+          </div>
+          <div class="credits-section">
+            <p class="credits">
+              <span class="developer"
+                >Developed by Dawson Tasheng Chen, M.D.</span
+              >
+              <span class="data-source">
+                Data analysis based on the Taiwan Assisted Reproductive
+                Technology (ART) Registry and National Health Insurance Research
+                Database(2000-2016).
+              </span>
+              <span class="source-code">
+                <a
+                  href="https://github.com/dawson1983/OHSSCalc"
+                  target="_blank"
+                >
+                  Source code: github.com/dawson1983/OHSSCalc
+                </a>
+              </span>
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,2660 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OHSS Admission Risk Calculator</title>
+    <style>
+      :root {
+        --primary-color: #b68973;
+        --secondary-color: #6b4f3f;
+        --accent-color: #c6956a;
+        --light-color: #e8e0d5;
+        --dark-color: #4a3728;
+        --success-color: #a29988;
+        --warning-color: #a09a8c;
+        --danger-color: #a07f5c;
+        --border-radius: 8px;
+        --box-shadow: 0 2px 10px rgba(107, 79, 63, 0.15);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark-color);
+        background-color: #f5f7fa;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        position: relative;
+      }
+      header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      h1 {
+        margin-bottom: 10px;
+        font-size: 2rem;
+      }
+      .description {
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+      .calculator-container {
+        padding: 20px;
+      }
+      .risk-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: var(--light-color);
+        border-radius: var(--border-radius);
+        margin: 30px 0;
+        text-align: center;
+      }
+      .risk-meter {
+        width: 100%;
+        height: 40px;
+        background-color: #f0f0f0;
+        border-radius: 20px;
+        margin-bottom: 15px;
+        position: relative;
+        overflow: visible;
+      }
+      .risk-indicator {
+        height: 100%;
+        width: 0%;
+        border-radius: 20px 0 0 20px;
+        position: absolute;
+        left: 0;
+        transition: width 0.5s ease, background-color 0.5s ease;
+        z-index: 2;
+        background: linear-gradient(to right, #a29988, #b68973 50%, #a07f5c);
+        background-size: 200% 100%;
+        background-position: left;
+      }
+      .indicator-pointer {
+        position: absolute;
+        top: -10px;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid #333;
+      }
+      .risk-indicator.low-risk {
+        background-position: 0% center;
+      }
+      .risk-indicator.medium-risk {
+        background-position: 50% center;
+      }
+      .risk-indicator.high-risk {
+        background-position: 100% center;
+      }
+      .risk-ticks {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
+      .tick {
+        position: relative;
+        width: 2px;
+        height: 10px;
+        background-color: #ccc;
+        top: 40px;
+        font-size: 12px;
+        color: #666;
+        padding-top: 5px;
+      }
+      .tick::before {
+        content: "";
+        position: absolute;
+        width: 2px;
+        height: 10px;
+        background-color: #999;
+        top: -15px;
+        left: 0;
+      }
+      .risk-percentage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 25px;
+      }
+      #riskPercentage {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--dark-color);
+      }
+      .risk-label {
+        font-size: 0.9rem;
+        color: var(--dark-color);
+        opacity: 0.7;
+        display: block;
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 5px;
+      }
+      .risk-level {
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        padding: 5px 12px;
+        border-radius: 20px;
+        display: inline-block;
+      }
+      .risk-level.low-risk {
+        color: #2ecc71;
+        background-color: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+      }
+      .risk-level.medium-risk {
+        color: #f39c12;
+        background-color: rgba(243, 156, 18, 0.1);
+        border: 1px solid rgba(243, 156, 18, 0.3);
+      }
+      .risk-level.high-risk {
+        color: #e74c3c;
+        background-color: rgba(231, 76, 60, 0.1);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+      }
+      .risk-explanation {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .risk-category {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        padding: 4px 10px;
+        border-radius: 15px;
+      }
+      .risk-category.low {
+        background-color: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+        font-weight: 500;
+      }
+      .risk-category.medium {
+        background-color: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+        font-weight: 500;
+      }
+      .risk-category.high {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        font-weight: 500;
+      }
+      .color-indicator {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        margin-right: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      .risk-disclaimer {
+        background-color: rgba(198, 149, 106, 0.1);
+        border-left: 3px solid var(--accent-color);
+        padding: 10px 15px;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        margin: 15px 0;
+        font-size: 0.9rem;
+        color: var(--dark-color);
+        text-align: left;
+        line-height: 1.4;
+        max-width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .disclaimer-icon {
+        display: inline-block;
+        color: var(--accent-color);
+        font-weight: bold;
+        margin-right: 5px;
+      }
+      .fixed-risk-disclaimer {
+        font-size: 0.75rem;
+        color: var(--dark-color);
+        opacity: 0.8;
+        margin-top: 5px;
+        background-color: rgba(198, 149, 106, 0.1);
+        border-left: 2px solid var(--accent-color);
+        padding: 5px 10px;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        text-align: left;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      @media (max-width: 768px) {
+        .risk-disclaimer {
+          font-size: 0.8rem;
+          padding: 8px 12px;
+        }
+        .fixed-risk-disclaimer {
+          font-size: 0.7rem;
+          padding: 4px 8px;
+        }
+      }
+      .decision-divider {
+        display: flex;
+        align-items: center;
+        margin: 30px 0 15px;
+      }
+      .divider-line {
+        flex-grow: 1;
+        height: 1px;
+        background-color: var(--secondary-color);
+      }
+      .decision-heading {
+        color: var(--secondary-color);
+        font-size: 1.2rem;
+        margin: 0 15px;
+        font-weight: 600;
+      }
+      .decision-explanation {
+        background-color: var(--light-color);
+        border-left: 4px solid var(--accent-color);
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      }
+      .decision-explanation p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--dark-color);
+      }
+      .risk-category.low .color-indicator {
+        background-color: #2ecc71;
+      }
+      .risk-category.medium .color-indicator {
+        background-color: #f39c12;
+      }
+      .risk-category.high .color-indicator {
+        background-color: #e74c3c;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        position: relative;
+      }
+      .radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        background-color: #f5f7fa;
+        padding: 10px;
+        border-radius: var(--border-radius);
+        border: 1px solid #ddd;
+      }
+      .radio-group label {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1 0 auto;
+        min-width: 120px;
+        justify-content: flex-start;
+        background-color: transparent;
+        border-radius: 0;
+      }
+      .radio-group label:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      .radio-group input[type="radio"] {
+        margin-right: 8px;
+      }
+      .radio-group input[type="radio"]:checked + span {
+        font-weight: bold;
+      }
+      .radio-group label input[type="radio"]:checked {
+        background-color: var(--primary-color);
+      }
+      .tooltip-icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        color: white;
+        font-size: 12px;
+        margin-left: 5px;
+        cursor: help;
+        position: relative;
+      }
+      .tooltip-icon:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 12px;
+        background-color: var(--dark-color);
+        color: white;
+        border-radius: var(--border-radius);
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 1;
+        font-weight: normal;
+        box-shadow: var(--box-shadow);
+      }
+      footer {
+        background-color: var(--light-color);
+        padding: 15px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--dark-color);
+        opacity: 0.7;
+      }
+      .enhanced-footer {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        border-top: 1px solid #dee2e6;
+        border-radius: 0 0 8px 8px;
+      }
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .advanced-settings {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+      }
+      .disclaimer-section {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      .credits-section {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .credits {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+      }
+
+      .developer {
+        font-weight: 600;
+        color: #495057;
+        font-size: 1rem;
+      }
+
+      .data-source {
+        font-style: italic;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+      .advanced-settings summary {
+        font-weight: bold;
+        cursor: pointer;
+        padding: 5px;
+      }
+      .settings-container {
+        padding: 15px 0;
+      }
+      .transfer-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f5f5f5;
+      }
+      .transfer-section h3 {
+        margin-top: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .btn-reset {
+        padding: 3px 8px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8em;
+      }
+      .btn-reset:hover {
+        background-color: #e0e0e0;
+      }
+      .risk-factors {
+        margin-top: 15px;
+      }
+      .risk-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .risk-table th {
+        background-color: #f0f0f0;
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      .risk-table td {
+        padding: 6px 8px;
+        border-bottom: 1px solid #eee;
+      }
+      .risk-table input[type="number"] {
+        width: 80px;
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-align: right;
+      }
+      .risk-table input[disabled] {
+        background-color: #f5f5f5;
+        color: #666;
+      }
+      @media (max-width: 768px) {
+        .risk-table {
+          font-size: 0.9em;
+        }
+        .risk-table input[type="number"] {
+          width: 70px;
+        }
+      }
+      @media (max-width: 768px) {
+        .risk-factors {
+          grid-template-columns: 1fr;
+        }
+      }
+      .btn-reset,
+      .btn-reset-all {
+        padding: 5px 10px;
+        background-color: var(--light-color);
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      .btn-reset-all {
+        display: block;
+        margin: 20px auto;
+        padding: 8px 16px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+      }
+      .btn-reset-all:hover {
+        background-color: #e0e0e0;
+      }
+      #baselineIncidence {
+        width: 100px;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .baseline-info {
+        margin-top: 8px;
+        font-size: 0.85rem;
+        color: var(--dark-color);
+        opacity: 0.7;
+      }
+      .baseline-info p {
+        margin: 0;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        .container {
+          max-width: 100%;
+        }
+        .radio-group {
+          flex-direction: column;
+        }
+        .radio-group label {
+          width: 100%;
+        }
+        #riskPercentage {
+          font-size: 1.5rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        .risk-explanation {
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+      }
+      .fixed-risk-display {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100%);
+        background-color: var(--light-color);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        padding: 10px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: transform 0.3s ease;
+        width: 100%;
+        max-width: 800px;
+        border-bottom-left-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+      }
+      .fixed-risk-display.visible {
+        transform: translateX(-50%) translateY(0);
+      }
+      .fixed-risk-display .risk-meter {
+        width: 100%;
+        height: 30px;
+        margin-bottom: 10px;
+      }
+      .fixed-risk-display .risk-percentage {
+        margin-top: 10px;
+      }
+      .fixed-risk-display #fixedRiskPercentage {
+        font-size: 1.6rem;
+      }
+      .fixed-risk-display .risk-label {
+        font-size: 0.8rem;
+      }
+      .fixed-risk-display .risk-level {
+        margin-top: 5px;
+        font-size: 1rem;
+      }
+      @media (max-width: 768px) {
+        .fixed-risk-display {
+          padding: 8px 10px;
+        }
+        .fixed-risk-display .risk-meter {
+          height: 25px;
+          margin-bottom: 5px;
+        }
+        .fixed-risk-display #fixedRiskPercentage {
+          font-size: 1.4rem;
+        }
+        .fixed-risk-display .risk-label {
+          font-size: 0.7rem;
+        }
+        .fixed-risk-display .risk-level {
+          margin-top: 3px;
+          font-size: 0.9rem;
+        }
+      }
+      .language-selector {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+      .language-selector label {
+        font-size: 0.9rem;
+        color: white;
+      }
+      .language-selector select {
+        padding: 5px 10px;
+        border-radius: var(--border-radius);
+        border: 1px solid #ccc;
+        background-color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>OHSS Admission Risk Calculator</h1>
+        <p class="description">
+          This calculator estimates the risk of hospital admission due to
+          Ovarian Hyperstimulation Syndrome (OHSS) based on various clinical
+          factors.
+        </p>
+        <div class="language-selector">
+          <label for="language-select">Language:</label>
+          <select id="language-select">
+            <option value="en" selected>English</option>
+            <option value="zh-TW">Traditional Chinese (Taiwan)</option>
+            <option value="es">Spanish</option>
+            <option value="ja">Japanese</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+          </select>
+        </div>
+      </header>
+      <div id="fixedRiskDisplay" class="fixed-risk-display">
+        <div class="risk-meter">
+          <div class="risk-indicator" id="fixedRiskIndicator">
+            <div class="indicator-pointer"></div>
+          </div>
+          <div class="risk-ticks">
+            <div class="tick">0%</div>
+            <div class="tick">2%</div>
+            <div class="tick">4%</div>
+            <div class="tick">6%</div>
+            <div class="tick">8%</div>
+            <div class="tick">10%</div>
+          </div>
+        </div>
+        <div class="risk-percentage">
+          <span id="fixedRiskPercentage">1.94%</span>
+          <span class="risk-label">Risk of OHSS Admission</span>
+          <div class="risk-level" id="fixedRiskLevel">Low Risk</div>
+        </div>
+        <p class="fixed-risk-disclaimer">
+          <span class="disclaimer-icon">ⓘ</span> <strong>Note:</strong> Rates
+          vary by country
+        </p>
+      </div>
+      <div class="calculator-container">
+        <div class="risk-display">
+          <div class="risk-meter">
+            <div class="risk-indicator" id="riskIndicator">
+              <div class="indicator-pointer"></div>
+            </div>
+            <div class="risk-ticks">
+              <div class="tick">0%</div>
+              <div class="tick">2%</div>
+              <div class="tick">4%</div>
+              <div class="tick">6%</div>
+              <div class="tick">8%</div>
+              <div class="tick">10%</div>
+            </div>
+          </div>
+          <div class="risk-percentage">
+            <span id="riskPercentage">1.94%</span>
+            <span class="risk-label">Risk of OHSS Admission</span>
+            <div class="risk-level" id="riskLevel">Low Risk</div>
+          </div>
+
+          <p class="risk-disclaimer">
+            <span class="disclaimer-icon">ⓘ</span> <strong>Note:</strong> The
+            actual hospital admission rate for OHSS may vary in different
+            countries due to variations in healthcare systems, insurance
+            coverage, and available resources. You can customize the baseline
+            risk in Advanced Settings to better reflect local data.
+          </p>
+
+          <div class="risk-explanation">
+            <div class="risk-category low">
+              <span class="color-indicator"></span>
+              <span>Low Risk: &lt;2%</span>
+            </div>
+            <div class="risk-category medium">
+              <span class="color-indicator"></span>
+              <span>Medium Risk: 2-5%</span>
+            </div>
+            <div class="risk-category high">
+              <span class="color-indicator"></span>
+              <span>High Risk: &gt;5%</span>
+            </div>
+          </div>
+        </div>
+        <form id="riskCalculatorForm">
+          <div class="form-group">
+            <label class="form-label">Maternal Age</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="maternalAge" value="less30" />
+                <span>Less than 30</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="30to34" checked />
+                <span>30-34</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="35to39" />
+                <span>35-39</span>
+              </label>
+              <label>
+                <input type="radio" name="maternalAge" value="more39" />
+                <span>More than 39</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"
+              >PCOS History
+              <span
+                class="tooltip-icon"
+                data-tooltip="Polycystic Ovary Syndrome (PCOS) history"
+                >?</span
+              ></label
+            >
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="pcosHistory" value="yes" />
+                <span>Yes</span>
+              </label>
+              <label>
+                <input type="radio" name="pcosHistory" value="no" checked />
+                <span>No</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Oocytes Retrieved</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="oocytes" value="less11" />
+                <span>Less than 11</span>
+              </label>
+              <label>
+                <input type="radio" name="oocytes" value="11to15" checked />
+                <span>11-15</span>
+              </label>
+              <label>
+                <input type="radio" name="oocytes" value="16to30" />
+                <span>16-30</span>
+              </label>
+              <label>
+                <input type="radio" name="oocytes" value="more30" />
+                <span>More than 30</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"
+              >Protocol
+              <span
+                class="tooltip-icon"
+                data-tooltip="Type of protocol used for ovarian stimulation"
+                >?</span
+              ></label
+            >
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="protocol" value="agonist" />
+                <span>Agonist Protocol</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="protocol"
+                  value="antagonist"
+                  checked
+                />
+                <span>Antagonist Protocol</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cause of Infertility</label>
+            <div class="radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="infertilityCause"
+                  value="tube"
+                  checked
+                />
+                <span>Tube</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="multiple" />
+                <span>Multiple</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="infertilityCause"
+                  value="otherFemale"
+                />
+                <span>Other Female</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="ovary" />
+                <span>Ovary</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="male" />
+                <span>Male</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="unknown" />
+                <span>Unknown</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="infertilityCause"
+                  value="endometriosis"
+                />
+                <span>Endometriosis</span>
+              </label>
+              <label>
+                <input type="radio" name="infertilityCause" value="uterus" />
+                <span>Uterus</span>
+              </label>
+            </div>
+          </div>
+          <div class="decision-divider">
+            <div class="divider-line"></div>
+            <h3 class="decision-heading">Shared Decision Making</h3>
+            <div class="divider-line"></div>
+          </div>
+          <div class="decision-explanation">
+            <p>
+              The following options represent key decisions to be made jointly
+              by clinicians and patients after ovum pick-up. Consider the risk
+              factors above when making these choices.
+            </p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Embryo Transfer Strategy</label>
+            <div class="radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="embryoTransfer"
+                  value="fresh"
+                  checked
+                />
+                <span>Fresh Embryo Transfer</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoTransfer" value="freezeAll" />
+                <span>No Embryo Transfer (Freeze-All)</span>
+              </label>
+            </div>
+          </div>
+          <div id="embryoTransferOptions" class="form-group">
+            <label class="form-label">Embryo Transfer Number</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="embryoNumber" value="SET" checked />
+                <span>Single (SET)</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoNumber" value="DET" />
+                <span>Double (DET)</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoNumber" value="TET" />
+                <span>Triple (TET)</span>
+              </label>
+              <label>
+                <input type="radio" name="embryoNumber" value="QETorMore" />
+                <span>Quadruple or More (QET+)</span>
+              </label>
+            </div>
+          </div>
+          <div id="clinicalPregnancyOptions" class="form-group">
+            <label class="form-label"
+              >Clinical Pregnancy
+              <span
+                class="tooltip-icon"
+                data-tooltip="Confirmation of pregnancy after embryo transfer"
+                >?</span
+              ></label
+            >
+            <div class="radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="clinicalPregnancy"
+                  value="yes"
+                  checked
+                />
+                <span>No</span>
+              </label>
+              <label>
+                <input type="radio" name="clinicalPregnancy" value="no" />
+                <span>Yes</span>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <details class="advanced-settings">
+        <summary>Advanced Settings</summary>
+        <div class="settings-container">
+          <div class="transfer-settings">
+            <div class="transfer-section">
+              <h3>
+                Fresh Embryo Transfer
+                <button id="resetFreshBtn" class="btn-reset">Reset</button>
+              </h3>
+              <div class="form-group">
+                <label for="baselineIncidenceFresh"
+                  >Baseline Incidence Rate:</label
+                >
+                <input
+                  type="number"
+                  id="baselineIncidenceFresh"
+                  value="0.01940"
+                  step="0.00001"
+                  min="0"
+                  max="1"
+                />
+              </div>
+              <div class="risk-factors">
+                <table class="risk-table">
+                  <thead>
+                    <tr>
+                      <th>Risk Factor</th>
+                      <th>Odds Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>PCOS History (No)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryNoFresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>PCOS History (Yes)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryFresh"
+                          value="2.06"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Antagonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="antagonistProtocolFresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Agonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="agonistProtocolFresh"
+                          value="1.04"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (Less than 11)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesLess11Fresh"
+                          value="0.32"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (11-15)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes11to15Fresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (16-30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes16to30Fresh"
+                          value="1.84"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (More than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesMore30Fresh"
+                          value="3.07"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (Less than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageLess30Fresh"
+                          value="1.24"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (30-34)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age30to34Fresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (35-39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age35to39Fresh"
+                          value="0.64"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (More than 39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageMore39Fresh"
+                          value="0.27"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Tube)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="tubeFresh"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Multiple)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="multipleFresh"
+                          value="0.94"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Other Female)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="otherFemaleFresh"
+                          value="0.95"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Ovary)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ovaryFresh"
+                          value="0.70"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Male)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="maleFresh"
+                          value="0.99"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Unknown)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="unknownFresh"
+                          value="1.15"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Endometriosis)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="endometriosisFresh"
+                          value="0.37"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Uterus)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="uterusFresh"
+                          value="0.47"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (SET)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferSET"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (DET)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferDET"
+                          value="1.39"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (TET)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferTET"
+                          value="1.69"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embryo Transfer Number (QET+)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="embryoTransferQETorMore"
+                          value="1.98"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Clinical Pregnancy (No)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="clinicalPregnancyNo"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Clinical Pregnancy (Yes)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="clinicalPregnancyYes"
+                          value="2.22"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="transfer-section">
+              <h3>
+                Freeze-All Strategy
+                <button id="resetFreezeAllBtn" class="btn-reset">Reset</button>
+              </h3>
+              <div class="form-group">
+                <label for="baselineIncidenceFreezeAll"
+                  >Baseline Incidence Rate:</label
+                >
+                <input
+                  type="number"
+                  id="baselineIncidenceFreezeAll"
+                  value="0.01114"
+                  step="0.00001"
+                  min="0"
+                  max="1"
+                />
+              </div>
+              <div class="risk-factors">
+                <table class="risk-table">
+                  <thead>
+                    <tr>
+                      <th>Risk Factor</th>
+                      <th>Odds Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>PCOS History (No)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryNoFreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>PCOS History (Yes)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="pcosHistoryFreezeAll"
+                          value="1.85"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Antagonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="antagonistProtocolFreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Agonist Protocol</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="agonistProtocolFreezeAll"
+                          value="0.97"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (Less than 11)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesLess11FreezeAll"
+                          value="0.23"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (11-15)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes11to15FreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (16-30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytes16to30FreezeAll"
+                          value="1.89"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Oocytes Retrieved (More than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="oocytesMore30FreezeAll"
+                          value="3.13"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (Less than 30)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageLess30FreezeAll"
+                          value="1.06"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (30-34)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age30to34FreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (35-39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age35to39FreezeAll"
+                          value="0.71"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maternal Age (More than 39)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ageMore39FreezeAll"
+                          value="0.42"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Tube)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="tubeFreezeAll"
+                          value="1.00"
+                          step="0.01"
+                          min="0"
+                          disabled
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Multiple)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="multipleFreezeAll"
+                          value="0.85"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Other Female)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="otherFemaleFreezeAll"
+                          value="0.63"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Ovary)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="ovaryFreezeAll"
+                          value="0.69"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Male)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="maleFreezeAll"
+                          value="0.85"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Unknown)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="unknownFreezeAll"
+                          value="1.30"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Endometriosis)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="endometriosisFreezeAll"
+                          value="0.57"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Cause of Infertility (Uterus)</td>
+                      <td>
+                        <input
+                          type="number"
+                          id="uterusFreezeAll"
+                          value="0.38"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <button id="resetAllFactorsBtn" class="btn-reset-all">
+            Reset All Risk Factors
+          </button>
+        </div>
+      </details>
+      <footer class="enhanced-footer">
+        <div class="footer-content">
+          <div class="disclaimer-section">
+            <p>
+              This calculator is based on research data and is for educational
+              purposes only. Always consult with your healthcare provider for
+              medical advice.
+            </p>
+            <p>
+              Default baseline incidence rates: Fresh ET: 1.94%, Freeze-All:
+              1.11%
+            </p>
+          </div>
+          <div class="credits-section">
+            <p class="credits">
+              <span class="developer"
+                >Developed by Dawson Tasheng Chen, M.D.</span
+              >
+              <span class="data-source">
+                Data analysis based on the Taiwan Assisted Reproductive
+                Technology (ART) Registry and National Health Insurance Research
+                Database(2000-2016).
+              </span>
+              <span class="source-code">
+                <a
+                  href="https://github.com/dawson1983/OHSSCalc"
+                  target="_blank"
+                >
+                  Source code: github.com/dawson1983/OHSSCalc
+                </a>
+              </span>
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("riskCalculatorForm");
+        const riskPercentage = document.getElementById("riskPercentage");
+        const riskIndicator = document.getElementById("riskIndicator");
+        const riskLevel = document.getElementById("riskLevel");
+        const embryoTransferOptions = document.getElementById(
+          "embryoTransferOptions"
+        );
+        const clinicalPregnancyOptions = document.getElementById(
+          "clinicalPregnancyOptions"
+        );
+        const resetFreshBtn = document.getElementById("resetFreshBtn");
+        const resetFreezeAllBtn = document.getElementById("resetFreezeAllBtn");
+        const resetAllFactorsBtn =
+          document.getElementById("resetAllFactorsBtn");
+        const baselineIncidenceFresh = document.getElementById(
+          "baselineIncidenceFresh"
+        );
+        const baselineIncidenceFreezeAll = document.getElementById(
+          "baselineIncidenceFreezeAll"
+        );
+        const embryoTransferRadios =
+          document.getElementsByName("embryoTransfer");
+        const languageSelect = document.getElementById("language-select");
+        const fixedRiskDisplay = document.getElementById("fixedRiskDisplay");
+        const fixedRiskPercentage = document.getElementById(
+          "fixedRiskPercentage"
+        );
+        const fixedRiskIndicator =
+          document.getElementById("fixedRiskIndicator");
+        const fixedRiskLevel = document.getElementById("fixedRiskLevel");
+        const riskDisplay = document.querySelector(".risk-display");
+        const DEFAULT_BASELINE_INCIDENCE = 0.0194;
+        const DEFAULT_BASELINE_INCIDENCE_FREEZEALL = 0.01114;
+        const DEFAULT_TRANSLATIONS = {
+          en: {
+            title: "OHSS Admission Risk Calculator",
+            description:
+              "This calculator estimates the risk of hospital admission due to Ovarian Hyperstimulation Syndrome (OHSS) based on various clinical factors.",
+            embryoTransfer: "Embryo Transfer Strategy",
+            pcosHistory: "PCOS History",
+            protocol: "Protocol",
+            oocytes: "Oocytes Retrieved",
+            maternalAge: "Maternal Age",
+            infertilityCause: "Cause of Infertility",
+            embryoNumber: "Embryo Transfer Number",
+            "risk-label": "Risk of OHSS Admission",
+            sharedDecision: "Shared Decision Making",
+            decisionExplanation:
+              "The following options represent key decisions to be made jointly by clinicians and patients after ovum pick-up. Consider the risk factors above when making these choices.",
+            freshEmbryo: "Fresh Embryo Transfer",
+            noEmbryo: "No Embryo Transfer (Freeze-All)",
+            yes: "Yes",
+            no: "No",
+            agonist: "Agonist Protocol",
+            antagonist: "Antagonist Protocol",
+            less11: "Less than 11",
+            "11to15": "11-15",
+            "16to30": "16-30",
+            more30: "More than 30",
+            less30: "Less than 30",
+            "30to34": "30-34",
+            "35to39": "35-39",
+            more39: "More than 39",
+            tube: "Tube",
+            multiple: "Multiple",
+            otherFemale: "Other Female",
+            ovary: "Ovary",
+            male: "Male",
+            unknown: "Unknown",
+            endometriosis: "Endometriosis",
+            uterus: "Uterus",
+            SET: "Single (SET)",
+            DET: "Double (DET)",
+            TET: "Triple (TET)",
+            QETorMore: "Quadruple or More (QET+)",
+            clinicalPregnancy: "Clinical Pregnancy",
+            yes: "Yes",
+            no: "No",
+            lowRisk: "Low Risk: <2%",
+            mediumRisk: "Medium Risk: 2-5%",
+            highRisk: "High Risk: >5%",
+            // Disclaimer messages
+            fullDisclaimer:
+              "The actual hospital admission rate for OHSS may vary in different countries due to variations in healthcare systems, insurance coverage, and available resources. You can customize the baseline risk in Advanced Settings to better reflect local data.",
+            shortDisclaimer: "Rates vary by country",
+            // Advanced Settings
+            advancedSettings: "Advanced Settings",
+            freshTransferSection: "Fresh Embryo Transfer",
+            freezeAllSection: "Freeze-All Strategy",
+            baselineIncidence: "Baseline Incidence Rate:",
+            riskFactor: "Risk Factor",
+            oddsRatio: "Odds Ratio",
+            resetBtn: "Reset",
+            resetAllBtn: "Reset All Risk Factors",
+            // Footer content
+            footerDisclaimer:
+              "This calculator is based on research data and is for educational purposes only. Always consult with your healthcare provider for medical advice.",
+            baselineRates:
+              "Default baseline incidence rates: Fresh ET: 1.94%, Freeze-All: 1.11%",
+            developer: "Developed by Dawson Tasheng Chen, M.D.",
+            dataSource:
+              "Data analysis based on the Taiwan Assisted Reproductive Technology (ART) Registry and National Health Insurance Research Database(2000-2016).",
+            sourceCode: "Source code: github.com/dawson1983/OHSSCalc",
+          },
+          "zh-TW": {
+            title: "OHSS 入院風險計算器",
+            description:
+              "此計算器根據各種臨床因素估計卵巢過度刺激綜合症（OHSS）導致住院的風險。",
+            embryoTransfer: "胚胎移植策略",
+            pcosHistory: "多囊卵巢綜合症病史",
+            protocol: "方案",
+            oocytes: "取出的卵子數量",
+            maternalAge: "母親年齡",
+            infertilityCause: "不孕原因",
+            embryoNumber: "胚胎移植數量",
+            "risk-label": "OHSS 入院風險",
+            sharedDecision: "共同決策",
+            decisionExplanation:
+              "以下選項代表在卵子採集後需要由臨床醫師和患者共同做出的關鍵決定。請在做出這些選擇時考慮上述風險因素。",
+            freshEmbryo: "新鮮週期植入(當周期)",
+            noEmbryo: "當周期全部冷凍不植入胚胎",
+            yes: "有",
+            no: "無",
+            agonist: "促性腺激素釋放激動劑方案",
+            antagonist: "促性腺激素釋放拮抗劑方案",
+            less11: "少於11個",
+            "11to15": "11-15個",
+            "16to30": "16-30個",
+            more30: "多於30個",
+            less30: "小於30歲",
+            "30to34": "30-34歲",
+            "35to39": "35-39歲",
+            more39: "大於39歲",
+            tube: "輸卵管因素",
+            multiple: "多種因素",
+            otherFemale: "其他女性因素",
+            ovary: "卵巢因素",
+            male: "男性因素",
+            unknown: "不明原因",
+            endometriosis: "子宮內膜異位症",
+            uterus: "子宮因素",
+            SET: "單胚胎移植 (SET)",
+            DET: "雙胚胎移植 (DET)",
+            TET: "三胚胎移植 (TET)",
+            QETorMore: "四個或更多胚胎移植 (QET+)",
+            clinicalPregnancy: "臨床妊娠",
+            yes: "是",
+            no: "否",
+            lowRisk: "低風險: <2%",
+            mediumRisk: "中風險: 2-5%",
+            highRisk: "高風險: >5%",
+            // Disclaimer messages
+            fullDisclaimer:
+              "OHSS的實際住院率在不同國家會有所不同，這取決於醫療系統、保險範圍和可用資源的差異。您可以在進階設定中自定義基線風險以更好地反映當地數據。",
+            shortDisclaimer: "各國數據可能有差異",
+            // Advanced Settings
+            advancedSettings: "進階設定",
+            freshTransferSection: "新鮮胚胎移植",
+            freezeAllSection: "全冷凍策略",
+            baselineIncidence: "基準發生率:",
+            riskFactor: "風險因子",
+            oddsRatio: "勝算比",
+            resetBtn: "重置",
+            resetAllBtn: "重置所有風險因子",
+            // Footer content
+            footerDisclaimer:
+              "此計算器基於研究數據，僅供教育目的使用。請始終諮詢您的醫療提供者獲取醫療建議。",
+            baselineRates: "預設基準發生率: 新鮮胚胎移植: 1.94%, 全冷凍: 1.11%",
+            developer: "開發者: 陳達生 醫師",
+            dataSource:
+              "數據分析基於台灣輔助生殖技術(ART)註冊資料庫和國民健康保險研究資料庫(2000-2016)。",
+            sourceCode: "原始碼: github.com/dawson1983/OHSSCalc",
+          },
+          es: {
+            title: "Calculadora de Riesgo de Ingreso por OHSS",
+            description:
+              "Esta calculadora estima el riesgo de ingreso hospitalario debido al Síndrome de Hiperestimulación Ovárica (OHSS) basado en varios factores clínicos.",
+            embryoTransfer: "Estrategia de Transferencia de Embriones",
+            pcosHistory: "Historia de SOP",
+            protocol: "Protocolo",
+            oocytes: "Ovocitos Recuperados",
+            maternalAge: "Edad Materna",
+            infertilityCause: "Causa de Infertilidad",
+            embryoNumber: "Número de Transferencia de Embriones",
+            "risk-label": "Riesgo de Ingreso por OHSS",
+            sharedDecision: "Toma de Decisiones Compartida",
+            decisionExplanation:
+              "Las siguientes opciones representan decisiones clave que deben ser tomadas conjuntamente por los médicos y los pacientes después de la recolección de óvulos. Considere los factores de riesgo anteriores al tomar estas decisiones.",
+            freshEmbryo: "Transferencia de Embriones Frescos",
+            noEmbryo: "Sin Transferencia de Embriones (Congelación Total)",
+            yes: "Sí",
+            no: "No",
+            agonist: "Protocolo Agonista",
+            antagonist: "Protocolo Antagonista",
+            less11: "Menos de 11",
+            "11to15": "11-15",
+            "16to30": "16-30",
+            more30: "Más de 30",
+            less30: "Menos de 30",
+            "30to34": "30-34",
+            "35to39": "35-39",
+            more39: "Más de 39",
+            tube: "Tubo",
+            multiple: "Múltiple",
+            otherFemale: "Otra Femenina",
+            ovary: "Ovario",
+            male: "Masculina",
+            unknown: "Desconocida",
+            endometriosis: "Endometriosis",
+            uterus: "Útero",
+            SET: "Simple (SET)",
+            DET: "Doble (DET)",
+            TET: "Triple (TET)",
+            QETorMore: "Cuádruple o Más (QET+)",
+            clinicalPregnancy: "Embarazo Clínico",
+            yes: "Sí",
+            no: "No",
+            lowRisk: "Riesgo Bajo: <2%",
+            mediumRisk: "Riesgo Medio: 2-5%",
+            highRisk: "Riesgo Alto: >5%",
+            // Disclaimer messages
+            fullDisclaimer:
+              "La tasa real de ingreso hospitalario por OHSS puede variar en diferentes países debido a variaciones en los sistemas de salud, cobertura de seguros y recursos disponibles. Puede personalizar el riesgo de línea base en Configuración Avanzada para reflejar mejor los datos locales.",
+            shortDisclaimer: "Las tasas varían por país",
+            // Advanced Settings
+            advancedSettings: "Configuración Avanzada",
+            freshTransferSection: "Transferencia de Embriones Frescos",
+            freezeAllSection: "Estrategia de Congelación Total",
+            baselineIncidence: "Tasa de Incidencia Basal:",
+            riskFactor: "Factor de Riesgo",
+            oddsRatio: "Razón de Probabilidades",
+            resetBtn: "Restablecer",
+            resetAllBtn: "Restablecer Todos los Factores de Riesgo",
+            // Footer content
+            footerDisclaimer:
+              "Esta calculadora se basa en datos de investigación y es solo para fines educativos. Siempre consulte con su proveedor de atención médica para obtener asesoramiento médico.",
+            baselineRates:
+              "Tasas de incidencia básicas predeterminadas: TE Fresco: 1.94%, Congelación Total: 1.11%",
+            developer: "Desarrollado por Dawson Tasheng Chen, M.D.",
+            dataSource:
+              "Análisis de datos basado en el Registro de Tecnología de Reproducción Asistida de Taiwán (ART) y la Base de Datos de Investigación del Seguro Nacional de Salud (2000-2016).",
+            sourceCode: "Código fuente: github.com/dawson1983/OHSSCalc",
+          },
+          ja: {
+            title: "OHSS 入院リスク計算機",
+            description:
+              "この計算機は、さまざまな臨床因子に基づいて卵巢過剰刺激症候群（OHSS）による入院リスクを推定します。",
+            embryoTransfer: "胚移植戦略",
+            pcosHistory: "PCOS 歴",
+            protocol: "プロトコル",
+            oocytes: "採取された卵子",
+            maternalAge: "母体年齢",
+            infertilityCause: "不妊の原因",
+            embryoNumber: "胚移植数",
+            "risk-label": "OHSS 入院リスク",
+            sharedDecision: "共同意思決定",
+            decisionExplanation:
+              "以下のオプションは、卵子収穫後に医師と患者が共同で行う重要な意思決定を表しています。これらの選択を行う際には、上記のリスク因子を考慮してください。",
+            freshEmbryo: "新鮮胚移植",
+            noEmbryo: "胚移植なし（全凍結）",
+            yes: "はい",
+            no: "いいえ",
+            agonist: "アゴニストプロトコル",
+            antagonist: "アンタゴニストプロトコル",
+            less11: "11個未満",
+            "11to15": "11-15個",
+            "16to30": "16-30個",
+            more30: "30個以上",
+            less30: "30歳未満",
+            "30to34": "30-34歳",
+            "35to39": "35-39歳",
+            more39: "39歳以上",
+            tube: "卵管因子",
+            multiple: "複合因子",
+            otherFemale: "その他女性因子",
+            ovary: "卵巣因子",
+            male: "男性因子",
+            unknown: "原因不明",
+            endometriosis: "子宮内膜症",
+            uterus: "子宮因子",
+            SET: "単一胚移植（SET）",
+            DET: "二胚移植（DET）",
+            TET: "三胚移植（TET）",
+            QETorMore: "四胚以上移植（QET+）",
+            clinicalPregnancy: "臨床的妊娠",
+            yes: "はい",
+            no: "いいえ",
+            lowRisk: "低リスク: <2%",
+            mediumRisk: "中リスク: 2-5%",
+            highRisk: "高リスク: >5%",
+            // Disclaimer messages
+            fullDisclaimer:
+              "OHSSによる実際の入院率は、医療システム、保険の適用範囲、利用可能なリソースの違いにより、国によって異なる場合があります。詳細設定でベースラインリスクをカスタマイズして、地域のデータをより適切に反映させることができます。",
+            shortDisclaimer: "国によって率が異なります",
+            // Advanced Settings
+            advancedSettings: "詳細設定",
+            freshTransferSection: "新鮮胚移植",
+            freezeAllSection: "全凍結戦略",
+            baselineIncidence: "ベースライン発生率:",
+            riskFactor: "リスク因子",
+            oddsRatio: "オッズ比",
+            resetBtn: "リセット",
+            resetAllBtn: "すべてのリスク因子をリセット",
+            // Footer content
+            footerDisclaimer:
+              "この計算機は研究データに基づいており、教育目的のみに使用されます。常に医療アドバイスについては医療提供者に相談してください。",
+            baselineRates:
+              "デフォルトのベースライン発生率: 新鮮胚移植: 1.94%, 全凍結: 1.11%",
+            developer: "開発者: Dawson Tasheng Chen医師",
+            dataSource:
+              "データ分析は台湾の生殖補助医療技術（ART）登録と国民健康保険研究データベース（2000-2016年）に基づいています。",
+            sourceCode: "ソースコード: github.com/dawson1983/OHSSCalc",
+          },
+          fr: {
+            title: "Calculateur de Risque d'Admission OHSS",
+            description:
+              "Ce calculateur estime le risque d'hospitalisation due au Syndrome d'Hyperstimulation Ovarienne (OHSS) en fonction de divers facteurs cliniques.",
+            embryoTransfer: "Stratégie de Transfert d'Embryons",
+            pcosHistory: "Antécédents de SOPK",
+            protocol: "Protocole",
+            oocytes: "Ovocytes Récupérés",
+            maternalAge: "Âge Maternel",
+            infertilityCause: "Cause d'Infertilité",
+            embryoNumber: "Nombre de Transfert d'Embryons",
+            "risk-label": "Risque d'Admission OHSS",
+            sharedDecision: "Prise de Décision Partagée",
+            decisionExplanation:
+              "Les options suivantes représentent des décisions clés à prendre conjointement par les cliniciens et les patients après le prélèvement ovocytaire. Considérez les facteurs de risque ci-dessus lors de ces choix.",
+            freshEmbryo: "Transfert d'Embryons Frais",
+            noEmbryo: "Pas de Transfert d'Embryons (Congélation Totale)",
+            yes: "Oui",
+            no: "Non",
+            agonist: "Protocole Agoniste",
+            antagonist: "Protocole Antagoniste",
+            less11: "Moins de 11",
+            "11to15": "11-15",
+            "16to30": "16-30",
+            more30: "Plus de 30",
+            less30: "Moins de 30",
+            "30to34": "30-34",
+            "35to39": "35-39",
+            more39: "Plus de 39",
+            tube: "Tube",
+            multiple: "Multiple",
+            otherFemale: "Autre Féminine",
+            ovary: "Ovaire",
+            male: "Masculine",
+            unknown: "Inconnue",
+            endometriosis: "Endométriose",
+            uterus: "Utérus",
+            SET: "Simple (SET)",
+            DET: "Double (DET)",
+            TET: "Triple (TET)",
+            QETorMore: "Quadruple ou Plus (QET+)",
+            clinicalPregnancy: "Grossesse Clinique",
+            yes: "Oui",
+            no: "Non",
+            lowRisk: "Risque Faible: <2%",
+            mediumRisk: "Risque Moyen: 2-5%",
+            highRisk: "Risque Élevé: >5%",
+            // Disclaimer messages
+            fullDisclaimer:
+              "Le taux réel d'admission hospitalière pour OHSS peut varier d'un pays à l'autre en raison des variations dans les systèmes de santé, la couverture d'assurance et les ressources disponibles. Vous pouvez personnaliser le risque de référence dans les Paramètres Avancés pour mieux refléter les données locales.",
+            shortDisclaimer: "Les taux varient selon le pays",
+            // Advanced Settings
+            advancedSettings: "Paramètres Avancés",
+            freshTransferSection: "Transfert d'Embryons Frais",
+            freezeAllSection: "Stratégie de Congélation Totale",
+            baselineIncidence: "Taux d'Incidence de Référence:",
+            riskFactor: "Facteur de Risque",
+            oddsRatio: "Rapport de Cotes",
+            resetBtn: "Réinitialiser",
+            resetAllBtn: "Réinitialiser Tous les Facteurs de Risque",
+            // Footer content
+            footerDisclaimer:
+              "Cette calculatrice est basée sur des données de recherche et est uniquement à des fins éducatives. Consultez toujours votre professionnel de la santé pour des conseils médicaux.",
+            baselineRates:
+              "Taux d'incidence de référence par défaut: TE Frais: 1,94%, Congélation Totale: 1,11%",
+            developer: "Développé par Dawson Tasheng Chen, M.D.",
+            dataSource:
+              "Analyse des données basée sur le Registre des Technologies de Reproduction Assistée de Taïwan (ART) et la Base de Données de Recherche de l'Assurance Maladie Nationale (2000-2016).",
+            sourceCode: "Code source: github.com/dawson1983/OHSSCalc",
+          },
+          de: {
+            title: "OHSS-Aufnahmerisiko-Rechner",
+            description:
+              "Dieser Rechner schätzt das Risiko einer Krankenhauseinweisung aufgrund des Ovariellen Hyperstimulationssyndroms (OHSS) basierend auf verschiedenen klinischen Faktoren.",
+            embryoTransfer: "Embryotransfer-Strategie",
+            pcosHistory: "PCOS-Vorgeschichte",
+            protocol: "Protokoll",
+            oocytes: "Gewonnene Eizellen",
+            maternalAge: "Mütterliches Alter",
+            infertilityCause: "Unfruchtbarkeitsursache",
+            "risk-label": "Risiko einer OHSS-Aufnahme",
+            freshEmbryo: "Frischer Embryotransfer",
+            noEmbryo: "Kein Embryotransfer (Freeze-All)",
+            yes: "Ja",
+            no: "Nein",
+            agonist: "Agonist-Protokoll",
+            antagonist: "Antagonist-Protokoll",
+            less11: "Weniger als 11",
+            "11to15": "11-15",
+            "16to30": "16-30",
+            more30: "Mehr als 30",
+            less30: "Jünger als 30",
+            "30to34": "30-34",
+            "35to39": "35-39",
+            more39: "Älter als 39",
+            tube: "Eileiter",
+            multiple: "Mehrfach",
+            otherFemale: "Andere Weibliche",
+            ovary: "Eierstock",
+            male: "Männlich",
+            unknown: "Unbekannt",
+            endometriosis: "Endometriose",
+            uterus: "Gebärmutter",
+            SET: "Einzeln (SET)",
+            DET: "Doppelt (DET)",
+            TET: "Dreifach (TET)",
+            QETorMore: "Vierfach oder Mehr (QET+)",
+            clinicalPregnancy: "Klinische Schwangerschaft",
+            yes: "Ja",
+            no: "Nein",
+            lowRisk: "Niedriges Risiko: <2%",
+            mediumRisk: "Mittleres Risiko: 2-5%",
+            highRisk: "Hohes Risiko: >5%",
+            // Disclaimer messages
+            fullDisclaimer:
+              "Die tatsächliche Krankenhausaufnahmerate für OHSS kann in verschiedenen Ländern aufgrund von Unterschieden in Gesundheitssystemen, Versicherungsschutz und verfügbaren Ressourcen variieren. Sie können das Basisrisiko in den Erweiterten Einstellungen anpassen, um lokale Daten besser widerzuspiegeln.",
+            shortDisclaimer: "Raten variieren je nach Land",
+            // Advanced Settings
+            advancedSettings: "Erweiterte Einstellungen",
+            freshTransferSection: "Frischer Embryotransfer",
+            freezeAllSection: "Freeze-All-Strategie",
+            baselineIncidence: "Basis-Inzidenzrate:",
+            riskFactor: "Risikofaktor",
+            oddsRatio: "Chancenverhältnis",
+            resetBtn: "Zurücksetzen",
+            resetAllBtn: "Alle Risikofaktoren zurücksetzen",
+            // Footer content
+            footerDisclaimer:
+              "Dieser Rechner basiert auf Forschungsdaten und dient nur zu Bildungszwecken. Konsultieren Sie immer Ihren Gesundheitsdienstleister für medizinischen Rat.",
+            baselineRates:
+              "Standard-Basisinzidenzraten: Frischer ET: 1,94%, Freeze-All: 1,11%",
+            developer: "Entwickelt von Dawson Tasheng Chen, M.D.",
+            dataSource:
+              "Datenanalyse basierend auf dem Taiwan Assisted Reproductive Technology (ART) Register und der National Health Insurance Research Database (2000-2016).",
+            sourceCode: "Quellcode: github.com/dawson1983/OHSSCalc",
+          },
+        };
+        let translations = JSON.parse(JSON.stringify(DEFAULT_TRANSLATIONS));
+        let currentLanguage = "en";
+        const DEFAULT_RISK_FACTORS = {
+          pcosHistoryFresh: 2.06,
+          pcosHistoryFreezeAll: 1.85,
+          agonistProtocolFresh: 1.04,
+          agonistProtocolFreezeAll: 0.97,
+          oocytesLess11Fresh: 0.32,
+          oocytesLess11FreezeAll: 0.23,
+          oocytes16to30Fresh: 1.84,
+          oocytes16to30FreezeAll: 1.89,
+          oocytesMore30Fresh: 3.07,
+          oocytesMore30FreezeAll: 3.13,
+          ageLess30Fresh: 1.24,
+          ageLess30FreezeAll: 1.06,
+          age35to39Fresh: 0.64,
+          age35to39FreezeAll: 0.71,
+          ageMore39Fresh: 0.27,
+          ageMore39FreezeAll: 0.42,
+          multipleFresh: 0.94,
+          multipleFreezeAll: 0.85,
+          otherFemaleFresh: 0.95,
+          otherFemaleFreezeAll: 0.63,
+          ovaryFresh: 0.7,
+          ovaryFreezeAll: 0.69,
+          maleFresh: 0.99,
+          maleFreezeAll: 0.85,
+          unknownFresh: 1.15,
+          unknownFreezeAll: 1.3,
+          endometriosisFresh: 0.37,
+          endometriosisFreezeAll: 0.57,
+          uterusFresh: 0.47,
+          uterusFreezeAll: 0.38,
+          embryoTransferDET: 1.39,
+          embryoTransferTET: 1.69,
+          embryoTransferQETorMore: 1.98,
+          clinicalPregnancyYes: 2.22,
+        };
+        function initEventListeners() {
+          const inputs = form.querySelectorAll('input[type="radio"]');
+          inputs.forEach((input) => {
+            input.addEventListener("change", calculateRisk);
+          });
+          const customInputs = document.querySelectorAll(
+            '.risk-table input[type="number"]:not([disabled])'
+          );
+          customInputs.forEach((input) => {
+            input.addEventListener("change", calculateRisk);
+          });
+          baselineIncidenceFresh.addEventListener("change", calculateRisk);
+          baselineIncidenceFreezeAll.addEventListener("change", calculateRisk);
+          resetFreshBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            resetFreshFactors();
+            calculateRisk();
+          });
+          resetFreezeAllBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            resetFreezeAllFactors();
+            calculateRisk();
+          });
+          resetAllFactorsBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            resetAllRiskFactors();
+          });
+          if (languageSelect) {
+            languageSelect.addEventListener("change", function () {
+              currentLanguage = this.value;
+              applyTranslations();
+              saveLanguagePreference();
+            });
+          }
+          embryoTransferRadios.forEach((radio) => {
+            radio.addEventListener("change", function () {
+              toggleEmbryoTransferOptions();
+              calculateRisk();
+            });
+          });
+          window.addEventListener("scroll", toggleFixedRiskDisplay);
+          toggleEmbryoTransferOptions();
+          initializeTranslations();
+          calculateRisk();
+        }
+        function initializeTranslations() {
+          const savedLanguage = localStorage.getItem("ohssCalculatorLanguage");
+          if (savedLanguage && translations[savedLanguage]) {
+            currentLanguage = savedLanguage;
+            languageSelect.value = currentLanguage;
+          }
+          applyTranslations();
+        }
+        function applyTranslations() {
+          const lang = currentLanguage;
+          const trans = translations[lang];
+          document.title = trans["title"];
+          document.querySelector("h1").textContent = trans["title"];
+          document.querySelector(".description").textContent =
+            trans["description"];
+          document.querySelectorAll(".form-label").forEach((label) => {
+            const formGroup = label.closest(".form-group");
+            if (!formGroup) return;
+            let fieldType = "";
+            if (formGroup.querySelector('[name="embryoTransfer"]'))
+              fieldType = "embryoTransfer";
+            else if (formGroup.querySelector('[name="pcosHistory"]'))
+              fieldType = "pcosHistory";
+            else if (formGroup.querySelector('[name="protocol"]'))
+              fieldType = "protocol";
+            else if (formGroup.querySelector('[name="oocytes"]'))
+              fieldType = "oocytes";
+            else if (formGroup.querySelector('[name="maternalAge"]'))
+              fieldType = "maternalAge";
+            else if (formGroup.querySelector('[name="infertilityCause"]'))
+              fieldType = "infertilityCause";
+            else if (formGroup.querySelector('[name="embryoNumber"]'))
+              fieldType = "embryoNumber";
+            else if (formGroup.querySelector('[name="clinicalPregnancy"]'))
+              fieldType = "clinicalPregnancy";
+            if (fieldType && trans[fieldType]) {
+              const tooltip = label.querySelector(".tooltip-icon");
+              if (tooltip) {
+                let textNode = label.firstChild;
+                while (textNode && textNode !== tooltip) {
+                  if (textNode.nodeType === 3) {
+                    textNode.nodeValue = trans[fieldType] + " ";
+                    break;
+                  }
+                  textNode = textNode.nextSibling;
+                }
+              } else {
+                label.textContent = trans[fieldType];
+              }
+            }
+          });
+          document.querySelectorAll(".radio-group label").forEach((label) => {
+            const input = label.querySelector('input[type="radio"]');
+            const span = label.querySelector("span");
+            if (!input || !span) return;
+            const name = input.name;
+            const value = input.value;
+            let translationKey = "";
+            if (name === "embryoTransfer") {
+              if (value === "fresh") translationKey = "freshEmbryo";
+              else if (value === "freezeAll") translationKey = "noEmbryo";
+            } else if (name === "pcosHistory" || name === "clinicalPregnancy") {
+              translationKey = value;
+            } else if (name === "protocol") {
+              if (value === "agonist") translationKey = "agonist";
+              else if (value === "antagonist") translationKey = "antagonist";
+            } else if (name === "oocytes") {
+              translationKey = value;
+            } else if (name === "maternalAge") {
+              translationKey = value;
+            } else if (name === "infertilityCause") {
+              translationKey = value;
+            } else if (name === "embryoNumber") {
+              translationKey = value;
+            }
+            if (translationKey && trans[translationKey]) {
+              span.textContent = trans[translationKey];
+            }
+          });
+          document.querySelectorAll(".risk-label").forEach((el) => {
+            el.textContent = trans["risk-label"];
+          });
+          document
+            .querySelectorAll(".risk-category.low span:last-child")
+            .forEach((el) => {
+              if (trans["lowRisk"]) el.textContent = trans["lowRisk"];
+            });
+          document
+            .querySelectorAll(".risk-category.medium span:last-child")
+            .forEach((el) => {
+              if (trans["mediumRisk"]) el.textContent = trans["mediumRisk"];
+            });
+          document
+            .querySelectorAll(".risk-category.high span:last-child")
+            .forEach((el) => {
+              if (trans["highRisk"]) el.textContent = trans["highRisk"];
+            });
+          const decisionHeading = document.querySelector(".decision-heading");
+          if (decisionHeading && trans["sharedDecision"]) {
+            decisionHeading.textContent = trans["sharedDecision"];
+          }
+          const decisionExplanation = document.querySelector(
+            ".decision-explanation p"
+          );
+          if (decisionExplanation && trans["decisionExplanation"]) {
+            decisionExplanation.textContent = trans["decisionExplanation"];
+          }
+
+          // Update disclaimer texts
+          const fullDisclaimer = document.querySelector(".risk-disclaimer");
+          if (fullDisclaimer && trans["fullDisclaimer"]) {
+            // Keep the icon and "Note:" part
+            const icon = fullDisclaimer.querySelector(".disclaimer-icon");
+            const note = fullDisclaimer.querySelector("strong");
+            if (icon && note) {
+              fullDisclaimer.innerHTML = "";
+              fullDisclaimer.appendChild(icon.cloneNode(true));
+              fullDisclaimer.appendChild(document.createTextNode(" "));
+              fullDisclaimer.appendChild(note.cloneNode(true));
+              fullDisclaimer.appendChild(document.createTextNode(" "));
+              fullDisclaimer.appendChild(
+                document.createTextNode(trans["fullDisclaimer"])
+              );
+            } else {
+              fullDisclaimer.textContent = trans["fullDisclaimer"];
+            }
+          }
+
+          const shortDisclaimer = document.querySelector(
+            ".fixed-risk-disclaimer"
+          );
+          if (shortDisclaimer && trans["shortDisclaimer"]) {
+            // Keep the icon and "Note:" part
+            const icon = shortDisclaimer.querySelector(".disclaimer-icon");
+            const note = shortDisclaimer.querySelector("strong");
+            if (icon && note) {
+              shortDisclaimer.innerHTML = "";
+              shortDisclaimer.appendChild(icon.cloneNode(true));
+              shortDisclaimer.appendChild(document.createTextNode(" "));
+              shortDisclaimer.appendChild(note.cloneNode(true));
+              shortDisclaimer.appendChild(document.createTextNode(" "));
+              shortDisclaimer.appendChild(
+                document.createTextNode(trans["shortDisclaimer"])
+              );
+            } else {
+              shortDisclaimer.textContent = trans["shortDisclaimer"];
+            }
+          }
+
+          // Update advanced settings section
+          const advancedSettingsSummary = document.querySelector(
+            ".advanced-settings summary"
+          );
+          if (advancedSettingsSummary && trans["advancedSettings"]) {
+            advancedSettingsSummary.textContent = trans["advancedSettings"];
+          }
+
+          // Update transfer sections
+          const freshTransferHeading = document.querySelector(
+            ".transfer-section:first-of-type h3"
+          );
+          if (freshTransferHeading && trans["freshTransferSection"]) {
+            const resetBtn = freshTransferHeading.querySelector(".btn-reset");
+            if (resetBtn) {
+              freshTransferHeading.textContent =
+                trans["freshTransferSection"] + " ";
+              freshTransferHeading.appendChild(resetBtn);
+              if (trans["resetBtn"]) {
+                resetBtn.textContent = trans["resetBtn"];
+              }
+            } else {
+              freshTransferHeading.textContent = trans["freshTransferSection"];
+            }
+          }
+
+          const freezeAllHeading = document.querySelector(
+            ".transfer-section:nth-of-type(2) h3"
+          );
+          if (freezeAllHeading && trans["freezeAllSection"]) {
+            const resetBtn = freezeAllHeading.querySelector(".btn-reset");
+            if (resetBtn) {
+              freezeAllHeading.textContent = trans["freezeAllSection"] + " ";
+              freezeAllHeading.appendChild(resetBtn);
+              if (trans["resetBtn"]) {
+                resetBtn.textContent = trans["resetBtn"];
+              }
+            } else {
+              freezeAllHeading.textContent = trans["freezeAllSection"];
+            }
+          }
+
+          // Update incidence rate labels
+          const baselineLabels = document.querySelectorAll(
+            'label[for^="baselineIncidence"]'
+          );
+          baselineLabels.forEach((label) => {
+            if (trans["baselineIncidence"]) {
+              label.textContent = trans["baselineIncidence"];
+            }
+          });
+
+          // Update risk table headers
+          const riskFactorHeaders = document.querySelectorAll(
+            ".risk-table th:first-child"
+          );
+          riskFactorHeaders.forEach((header) => {
+            if (trans["riskFactor"]) {
+              header.textContent = trans["riskFactor"];
+            }
+          });
+
+          const oddsRatioHeaders = document.querySelectorAll(
+            ".risk-table th:nth-child(2)"
+          );
+          oddsRatioHeaders.forEach((header) => {
+            if (trans["oddsRatio"]) {
+              header.textContent = trans["oddsRatio"];
+            }
+          });
+
+          // Update reset all button
+          const resetAllBtn = document.getElementById("resetAllFactorsBtn");
+          if (resetAllBtn && trans["resetAllBtn"]) {
+            resetAllBtn.textContent = trans["resetAllBtn"];
+          }
+
+          // Update footer content
+          const footerDisclaimerP = document.querySelector(
+            ".disclaimer-section p:first-child"
+          );
+          if (footerDisclaimerP && trans["footerDisclaimer"]) {
+            footerDisclaimerP.textContent = trans["footerDisclaimer"];
+          }
+
+          const baselineRatesP = document.querySelector(
+            ".disclaimer-section p:nth-child(2)"
+          );
+          if (baselineRatesP && trans["baselineRates"]) {
+            baselineRatesP.textContent = trans["baselineRates"];
+          }
+
+          const developerSpan = document.querySelector(".developer");
+          if (developerSpan && trans["developer"]) {
+            developerSpan.textContent = trans["developer"];
+          }
+
+          const dataSourceSpan = document.querySelector(".data-source");
+          if (dataSourceSpan && trans["dataSource"]) {
+            dataSourceSpan.textContent = trans["dataSource"];
+          }
+
+          document.documentElement.lang = lang;
+        }
+        function saveLanguagePreference() {
+          localStorage.setItem("ohssCalculatorLanguage", currentLanguage);
+        }
+        function toggleEmbryoTransferOptions() {
+          const isFreshTransfer = document.querySelector(
+            'input[name="embryoTransfer"][value="fresh"]'
+          ).checked;
+          embryoTransferOptions.style.display = isFreshTransfer
+            ? "block"
+            : "none";
+          clinicalPregnancyOptions.style.display = isFreshTransfer
+            ? "block"
+            : "none";
+        }
+        function toggleFixedRiskDisplay() {
+          if (!riskDisplay) return;
+          const riskDisplayTop = riskDisplay.getBoundingClientRect().top;
+          const riskDisplayBottom = riskDisplay.getBoundingClientRect().bottom;
+          if (riskDisplayTop < 0 || riskDisplayBottom < 0) {
+            fixedRiskDisplay.classList.add("visible");
+          } else {
+            fixedRiskDisplay.classList.remove("visible");
+          }
+        }
+        function resetFreshFactors() {
+          baselineIncidenceFresh.value = DEFAULT_BASELINE_INCIDENCE;
+          for (const factor in DEFAULT_RISK_FACTORS) {
+            if (
+              factor.includes("Fresh") ||
+              factor.includes("embryoTransfer") ||
+              factor.includes("clinicalPregnancy")
+            ) {
+              const element = document.getElementById(factor);
+              if (element) {
+                element.value = DEFAULT_RISK_FACTORS[factor];
+              }
+            }
+          }
+        }
+        function resetFreezeAllFactors() {
+          baselineIncidenceFreezeAll.value =
+            DEFAULT_BASELINE_INCIDENCE_FREEZEALL;
+          for (const factor in DEFAULT_RISK_FACTORS) {
+            if (factor.includes("FreezeAll")) {
+              const element = document.getElementById(factor);
+              if (element) {
+                element.value = DEFAULT_RISK_FACTORS[factor];
+              }
+            }
+          }
+        }
+        function resetAllRiskFactors() {
+          resetFreshFactors();
+          resetFreezeAllFactors();
+          calculateRisk();
+        }
+        function calculateRisk() {
+          let baselineIncidence;
+          const isFreshTransfer = document.querySelector(
+            'input[name="embryoTransfer"][value="fresh"]'
+          ).checked;
+          if (isFreshTransfer) {
+            baselineIncidence = parseFloat(baselineIncidenceFresh.value);
+          } else {
+            baselineIncidence = parseFloat(baselineIncidenceFreezeAll.value);
+          }
+          let relativeRisk = 1.0;
+          const transferType = isFreshTransfer ? "Fresh" : "FreezeAll";
+          if (
+            document.querySelector('input[name="pcosHistory"][value="yes"]')
+              .checked
+          ) {
+            const factorId = `pcosHistory${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          }
+          if (
+            document.querySelector('input[name="protocol"][value="agonist"]')
+              .checked
+          ) {
+            const factorId = `agonistProtocol${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          }
+          const oocytesValue = document.querySelector(
+            'input[name="oocytes"]:checked'
+          ).value;
+          if (oocytesValue === "less11") {
+            const factorId = `oocytesLess11${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (oocytesValue === "16to30") {
+            const factorId = `oocytes16to30${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (oocytesValue === "more30") {
+            const factorId = `oocytesMore30${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          }
+          const maternalAgeValue = document.querySelector(
+            'input[name="maternalAge"]:checked'
+          ).value;
+          if (maternalAgeValue === "less30") {
+            const factorId = `ageLess30${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (maternalAgeValue === "35to39") {
+            const factorId = `age35to39${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (maternalAgeValue === "more39") {
+            const factorId = `ageMore39${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          }
+          const infertilityCauseValue = document.querySelector(
+            'input[name="infertilityCause"]:checked'
+          ).value;
+          if (infertilityCauseValue === "multiple") {
+            const factorId = `multiple${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (infertilityCauseValue === "otherFemale") {
+            const factorId = `otherFemale${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (infertilityCauseValue === "ovary") {
+            const factorId = `ovary${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (infertilityCauseValue === "male") {
+            const factorId = `male${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (infertilityCauseValue === "unknown") {
+            const factorId = `unknown${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (infertilityCauseValue === "endometriosis") {
+            const factorId = `endometriosis${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          } else if (infertilityCauseValue === "uterus") {
+            const factorId = `uterus${transferType}`;
+            relativeRisk *= parseFloat(document.getElementById(factorId).value);
+          }
+          if (isFreshTransfer) {
+            const embryoNumberValue = document.querySelector(
+              'input[name="embryoNumber"]:checked'
+            ).value;
+            if (embryoNumberValue === "DET") {
+              relativeRisk *= parseFloat(
+                document.getElementById("embryoTransferDET").value
+              );
+            } else if (embryoNumberValue === "TET") {
+              relativeRisk *= parseFloat(
+                document.getElementById("embryoTransferTET").value
+              );
+            } else if (embryoNumberValue === "QETorMore") {
+              relativeRisk *= parseFloat(
+                document.getElementById("embryoTransferQETorMore").value
+              );
+            }
+            if (
+              document.querySelector(
+                'input[name="clinicalPregnancy"][value="yes"]'
+              ).checked
+            ) {
+              relativeRisk *= parseFloat(
+                document.getElementById("clinicalPregnancyYes").value
+              );
+            }
+          }
+          const absoluteRisk = baselineIncidence * relativeRisk;
+          const riskPercentFormatted = (absoluteRisk * 100).toFixed(2) + "%";
+          riskPercentage.textContent = riskPercentFormatted;
+          fixedRiskPercentage.textContent = riskPercentFormatted;
+          const maxRisk = 0.1;
+          const positionPercentage = Math.min(
+            (absoluteRisk / maxRisk) * 100,
+            100
+          );
+          riskIndicator.style.width = `${positionPercentage}%`;
+          fixedRiskIndicator.style.width = `${positionPercentage}%`;
+          updateRiskLevel(absoluteRisk);
+        }
+        function updateRiskLevel(risk) {
+          const riskPercent = risk * 100;
+          let riskText, riskClass;
+          if (riskPercent < 2) {
+            riskText = "Low Risk";
+            riskClass = "low-risk";
+          } else if (riskPercent < 5) {
+            riskText = "Medium Risk";
+            riskClass = "medium-risk";
+          } else {
+            riskText = "High Risk";
+            riskClass = "high-risk";
+          }
+          riskIndicator.classList.remove(
+            "low-risk",
+            "medium-risk",
+            "high-risk"
+          );
+          fixedRiskIndicator.classList.remove(
+            "low-risk",
+            "medium-risk",
+            "high-risk"
+          );
+          riskIndicator.classList.add(riskClass);
+          fixedRiskIndicator.classList.add(riskClass);
+          riskLevel.textContent = riskText;
+          fixedRiskLevel.textContent = riskText;
+
+          // Update risk level element classes
+          riskLevel.classList.remove("low-risk", "medium-risk", "high-risk");
+          fixedRiskLevel.classList.remove(
+            "low-risk",
+            "medium-risk",
+            "high-risk"
+          );
+
+          riskLevel.classList.add(riskClass);
+          fixedRiskLevel.classList.add(riskClass);
+        }
+        initEventListeners();
+      });
+    </script>
+    <script>
+      (function () {
+        function c() {
+          var b = a.contentDocument || a.contentWindow.document;
+          if (b) {
+            var d = b.createElement("script");
+            d.innerHTML =
+              "window.__CF$cv$params={r:'91cf4d12fd0f69f3',t:'MTc0MTQwNTEyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+            b.getElementsByTagName("head")[0].appendChild(d);
+          }
+        }
+        if (document.body) {
+          var a = document.createElement("iframe");
+          a.height = 1;
+          a.width = 1;
+          a.style.position = "absolute";
+          a.style.top = 0;
+          a.style.left = 0;
+          a.style.border = "none";
+          a.style.visibility = "hidden";
+          document.body.appendChild(a);
+          if ("loading" !== document.readyState) c();
+          else if (window.addEventListener)
+            document.addEventListener("DOMContentLoaded", c);
+          else {
+            var e = document.onreadystatechange || function () {};
+            document.onreadystatechange = function (b) {
+              e(b);
+              "loading" !== document.readyState &&
+                ((document.onreadystatechange = e), c());
+            };
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
